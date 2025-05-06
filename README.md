@@ -1,4 +1,4 @@
-# SpaMICS
+# SpaMICS:Identifying Spatial Domains from Spatial Multi-Omics Data Using Consistent and Specific Deep Subspace Learning
 The source code and input data of SpaMICS
 
 ## Requirement
