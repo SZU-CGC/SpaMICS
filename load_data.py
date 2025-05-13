@@ -1,9 +1,3 @@
-"""
-    Authors: Guangchang Cai
-    Date: 2024-9-22
-    Version: 1.0
-"""
-
 from utils import construct_graph, refine_adj_spatial, convert_to_tensor
 from processing import preprocess
 import scanpy as sc
@@ -25,13 +19,20 @@ def load_data():
 
     if opt.args.name in ["Human_Lymph_Node_A1", "Human_Lymph_Node_D1"]:
         adata_omics1, adata_omics2, label = load_human_lymph_node(opt.args.name)
-        datatype = '10x'
+        datatype = 'RNA-ADT'
     elif opt.args.name in ["Human_tonsil_1", "Human_tonsil_3"]:
         adata_omics1, adata_omics2, label = load_human_tonsil(opt.args.name)
-        datatype = '10x'
+        datatype = 'RNA-ADT'
     elif opt.args.name in ["Mouse_Brain_E15", "Mouse_Brain_E18"]:
         adata_omics1, adata_omics2, label = load_mouse_brain(opt.args.name)
-        datatype = 'MISAR'
+        datatype = 'RNA-ATAC'
+        opt.args.lambda_1, opt.args.lambda_2, opt.args.lambda_3 = 1, 0.01, 1
+    elif opt.args.name == 'Human_Breast_Cancer':
+        adata_omics1, adata_omics2, label = load_human_breast_cancer(opt.args.name)
+        datatype = 'RNA-ADT'
+    elif opt.args.name == 'Human_Melanoma':
+        adata_omics1, adata_omics2, label = load_human_melanoma(opt.args.name)
+        datatype = 'RNA-ATAC'
         opt.args.lambda_1, opt.args.lambda_2, opt.args.lambda_3 = 1, 0.01, 1
     else:
         raise ValueError(f"Dataset {opt.args.name} not supported")
@@ -105,13 +106,12 @@ def load_mouse_brain(name):
         tuple: Contains RNA and ATAC AnnData objects and their labels (None for this dataset).
     """
     adata_rna = sc.read_h5ad(f'./data/MISAR/{name}/adata_RNA.h5ad')
-    # print(adata_rna.X.shape)
     adata_atac = sc.read_h5ad(f'./data/MISAR/{name}/adata_ATAC.h5ad')
     adata_rna.var_names_make_unique()
     adata_atac.var_names_make_unique()
 
     label = adata_rna.obs['Combined_Clusters']
-    print(adata_rna,adata_atac, adata_rna.obs['Combined_Clusters'])
+    print(adata_rna, adata_atac, adata_rna.obs['Combined_Clusters'])
     return adata_rna, adata_atac, label
 
 
@@ -126,16 +126,52 @@ def load_human_tonsil(name):
         tuple: Contains RNA and ADT AnnData objects and their labels (None for this dataset).
     """
     adata_rna = sc.read_h5ad(f'./data/10X/{name}/adata_RNA.h5ad')
-    adata_atac = sc.read_h5ad(f'./data/10X/{name}/adata_ADT.h5ad')
+    adata_adt = sc.read_h5ad(f'./data/10X/{name}/adata_ADT.h5ad')
     adata_rna.var_names_make_unique()
-    adata_atac.var_names_make_unique()
+    adata_adt.var_names_make_unique()
 
     label = adata_rna.obs['final_annot']
     from sklearn.preprocessing import LabelEncoder
     label_encoder = LabelEncoder()
     labels_numeric = label_encoder.fit_transform(label)
     adata_rna.obs['lab_numeric'] = labels_numeric
-    print(adata_rna, adata_atac, adata_rna.obs['final_annot'])
+    print(adata_rna, adata_adt, adata_rna.obs['final_annot'])
 
-    return adata_rna, adata_atac, adata_rna.obs['lab_numeric']
+    return adata_rna, adata_adt, adata_rna.obs['lab_numeric']
 
+
+def load_human_breast_cancer(name):
+    """
+    Load human breast cancer data from .h5ad files.
+
+    Args:
+        name (str): Dataset name indicating which files to load.
+
+    Returns:
+        tuple: Contains RNA and ADT AnnData objects and their labels (None for this dataset).
+    """
+    adata_rna = sc.read_h5ad(f'./data/10X/{name}/adata_RNA.h5ad')
+    adata_adt = sc.read_h5ad(f'./data/10X/{name}/adata_ADT.h5ad')
+
+    adata_rna.var_names_make_unique()
+    adata_adt.var_names_make_unique()
+    label = None
+    return adata_rna, adata_adt, label
+
+
+def load_human_melanoma(name):
+    """
+    Load human melanoma data from .h5ad files.
+
+    Args:
+        name (str): Dataset name indicating which files to load.
+
+    Returns:
+        tuple: Contains RNA and ATAC AnnData objects and their labels (None for this dataset).
+    """
+    adata_rna = sc.read_h5ad(f'./data/MISAR/{name}/adata_RNA.h5ad')
+    adata_atac = sc.read_h5ad(f'./data/MISAR/{name}/adata_ATAC.h5ad')
+    adata_rna.var_names_make_unique()
+    adata_atac.var_names_make_unique()
+    label = adata_rna.obs['cell_type'].astype('category').cat.codes
+    return adata_rna, adata_atac, label

@@ -20,6 +20,9 @@ if __name__ == '__main__':
     if opt.args.name == 'Human_tonsil':
         opt.args.n_cluster = 7
         label = None
+    elif opt.args.name == 'Human_Breast_Cancer':
+        opt.args.n_cluster = 18
+        label = None
     else:
         opt.args.n_cluster = len(np.unique(label))
 

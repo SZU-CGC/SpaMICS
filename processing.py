@@ -1,8 +1,4 @@
 # -*- coding:utf-8 -*-
-"""
-Author：CGC
-Data：2024年01月15日
-"""
 
 import os
 import scipy
@@ -22,12 +18,7 @@ def preprocess(adata_omics1, adata_omics2, datatype='10x'):
     # configure random seed
     random_seed = 2022
     fix_seed(random_seed)
-
-    if datatype not in ['10x', 'MISAR']:
-        raise ValueError(
-            "The datatype is not supported now. SMODICS supports '10x', 'MISAR'. We would extend SpaMICS for more data types. ")
-
-    if datatype == '10x':
+    if datatype == 'RNA-ADT':
         # RNA
         sc.pp.filter_genes(adata_omics1, min_cells=10)
         sc.pp.highly_variable_genes(adata_omics1, flavor="seurat_v3", n_top_genes=3000)
@@ -43,7 +34,7 @@ def preprocess(adata_omics1, adata_omics2, datatype='10x'):
         sc.pp.scale(adata_omics2)
         adata_omics2.obsm['feat'] = pca(adata_omics2, n_comps=adata_omics2.n_vars)
 
-    elif datatype == 'MISAR':
+    elif datatype == 'RNA-ATAC':
         # RNA
         sc.pp.filter_genes(adata_omics1, min_cells=10)
         sc.pp.highly_variable_genes(adata_omics1, flavor="seurat_v3", n_top_genes=3000)
@@ -124,7 +115,6 @@ def lsi(
     X_lsi = sklearn.utils.extmath.randomized_svd(X_norm, n_components, **kwargs)[0]
     X_lsi -= X_lsi.mean(axis=1, keepdims=True)
     X_lsi /= X_lsi.std(axis=1, ddof=1, keepdims=True)
-    # adata.obsm["X_lsi"] = X_lsi
     adata.obsm["X_lsi"] = X_lsi[:, 1:]
 
 
@@ -142,7 +132,6 @@ def tfidf(X):
 
 
 def fix_seed(seed):
-    # seed = 2023
     os.environ['PYTHONHASHSEED'] = str(seed)
     random.seed(seed)
     np.random.seed(seed)

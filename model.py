@@ -1,9 +1,3 @@
-"""
-    Authors: Guangchang Cai
-    Date: 2024-9-22
-    Version: 1.0
-"""
-
 import torch.autograd
 import torch.nn as nn
 import opt
