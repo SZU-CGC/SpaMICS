@@ -2,7 +2,7 @@ import argparse
 
 parser = argparse.ArgumentParser(description='SpaMICS', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 # setting
-parser.add_argument('--name', type=str, default="Human_Lympha_Node_A1")
+parser.add_argument('--name', type=str, default="Human_Lymph_Node_A1")
 parser.add_argument('--show', type=bool, default=False)
 parser.add_argument('--seed', type=int, default=0)
 parser.add_argument('--epoch', type=int, default=600)
