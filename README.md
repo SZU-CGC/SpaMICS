@@ -12,6 +12,7 @@ The source code and input data of SpaMICS
 - scanpy==1.9.7
 - scipy==1.10.1
 - anndata==0.9.2
+- episcanpy == 0.3.2
 
 ## Usage
 #### Clone this repo.
